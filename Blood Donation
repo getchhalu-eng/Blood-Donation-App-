@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Global Ethio Blood Donation System</title>
+<style>
+:root{--ink:#2b1618;--red:#b3122b;--paper:#fbf6f3;--line:#eaded9;--green:#1f7a4d;--gold:#e0a526;--mute:#7a6a6a}
+*{box-sizing:border-box;margin:0}
+body{font:16px/1.5 "Noto Sans Ethiopic",Nyala,"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top)) 14px 8px;display:flex;align-items:center;gap:8px}
+header:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;background:linear-gradient(90deg,var(--green) 33%,var(--gold) 33% 66%,var(--red) 66%)}
+header h1{font-size:15px;line-height:1.2;flex:1}
+.btn{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--red);color:#fff;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px}
+.btn.danger{background:#7d0c1d}
+main{padding:18px 14px;max-width:560px;margin:auto}
+h2{font-size:20px;margin-bottom:12px}
+.auth{max-width:420px;margin:auto;padding:calc(28px + env(safe-area-inset-top)) 16px}
+.auth h1{font-size:24px;line-height:1.25;margin:18px 0 4px}
+.sub{color:var(--mute);margin-bottom:18px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 4px}
+input,select{width:100%;min-height:46px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+input:focus,select:focus,.btn:focus-visible{outline:2px solid var(--red);outline-offset:1px}
+.ph{display:flex;gap:8px}.ph select{width:104px;flex:none}
+form .btn{width:100%;margin-top:18px}
+.err{color:var(--red);font-size:14px;min-height:20px;margin-top:10px}
+.link{background:none;border:0;color:var(--red);font-weight:600;margin-top:14px;min-height:44px;width:100%;cursor:pointer}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;gap:14px;align-items:center}
+.drop{flex:none;width:46px;height:46px;margin:6px 4px 0 6px;background:var(--red);color:#fff;border-radius:50% 0 50% 50%;transform:rotate(-45deg);display:grid;place-items:center}
+.drop b{transform:rotate(45deg);font-size:15px}
+.info{flex:1;min-width:0}.info strong{display:block;overflow-wrap:anywhere}
+.meta{color:var(--mute);font-size:14px;overflow-wrap:anywhere}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.row a{color:#fff;background:var(--green);text-decoration:none;border-radius:8px;padding:6px 12px;font-size:14px;font-weight:600}
+.empty{text-align:center;color:var(--mute);padding:36px 10px;border:1px dashed var(--line);border-radius:14px}
+.filters{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.stats div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stats b{display:block;font-size:24px;color:var(--red)}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;min-height:56px;border:0;background:none;font-size:13px;font-weight:600;color:var(--mute);cursor:pointer}
+nav button.on{color:var(--red);box-shadow:inset 0 3px 0 var(--red)}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:90%}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status"></div>
+<script>
+"use strict";
+const T={
+en:{app:"Global Ethio Blood Donation System",sub:"Find a donor or become one.",login:"Log in",register:"Create account",name:"Full name",email:"Email",pass:"Password",phone:"Phone number",blood:"Blood group",city:"City / location",logout:"Log out",requests:"Requests",donors:"Donors",post:"Post request",admin:"Admin",toReg:"New here? Create an account",toLog:"Have an account? Log in",patient:"Patient name",hospital:"Hospital name",country:"Country",units:"Units needed",send:"Post request",all:"All groups",fcity:"Filter by city",noReq:"No active requests yet. Post the first one.",noDon:"No donors match your filter.",reset:"Reset database",resetTxt:"Deletes all users, requests and settings, then restores the admin account.",resetAsk:"Delete all data? This cannot be undone.",badEmail:"Enter a valid email. The domain cannot contain numbers.",badPhone:"Phone must be 7–12 digits, numbers only.",badPass:"Password must be at least 6 characters.",badUnits:"Units must be between 1 and 20.",wrong:"Wrong email or password.",exists:"This email is already registered.",req:"Fill in every field.",posted:"Request posted.",created:"Account created.",done:"Database reset.",del:"Delete",call:"Call",unit:"unit(s)",nUsers:"Members",nDon:"Donors",nReq:"Requests",pick:"Select",active:"Active blood requests",find:"Find donors",newReq:"Post a blood request",panel:"Admin panel"},
+am:{app:"ግሎባል ኢትዮ የደም ልገሳ ሥርዓት",sub:"ለጋሽ ያግኙ ወይም ለጋሽ ይሁኑ።",login:"ግባ",register:"መለያ ክፈት",name:"ሙሉ ስም",email:"ኢሜይል",pass:"የይለፍ ቃል",phone:"ስልክ ቁጥር",blood:"የደም ዓይነት",city:"ከተማ / አካባቢ",logout:"ውጣ",requests:"ጥያቄዎች",donors:"ለጋሾች",post:"ጥያቄ ላክ",admin:"አስተዳዳሪ",toReg:"አዲስ ነዎት? መለያ ይክፈቱ",toLog:"መለያ አለዎት? ይግቡ",patient:"የታካሚ ስም",hospital:"የሆስፒታል ስም",country:"ሀገር",units:"የሚያስፈልጉ ዩኒቶች",send:"ጥያቄ አስገባ",all:"ሁሉም ዓይነት",fcity:"በከተማ ፈልግ",noReq:"እስካሁን ንቁ ጥያቄ የለም። የመጀመሪያውን ያስገቡ።",noDon:"ከመረጡት ጋር የሚመሳሰል ለጋሽ አልተገኘም።",reset:"ዳታቤዝ አጽዳ",resetTxt:"ሁሉንም ተጠቃሚዎች፣ ጥያቄዎችና ቅንብሮች ይሰርዛል፤ ከዚያ የአስተዳዳሪውን መለያ ይመልሳል።",resetAsk:"ሁሉም መረጃ ይሰረዝ? ይህ አይመለስም።",badEmail:"ትክክለኛ ኢሜይል ያስገቡ። ዶሜይኑ ቁጥር መያዝ የለበትም።",badPhone:"ስልክ ቁጥር ከ7–12 አሃዝ፣ ቁጥሮች ብቻ መሆን አለበት።",badPass:"የይለፍ ቃል ቢያንስ 6 ቁምፊ መሆን አለበት።",badUnits:"ዩኒት ከ1 እስከ 20 መሆን አለበት።",wrong:"ኢሜይል ወይም የይለፍ ቃል ልክ አይደለም።",exists:"ይህ ኢሜይል ቀድሞ ተመዝግቧል።",req:"ሁሉንም መስኮች ይሙሉ።",posted:"ጥያቄው ተለጥፏል።",created:"መለያ ተከፍቷል።",done:"ዳታቤዝ ተጠርጓል።",del:"ሰርዝ",call:"ደውል",unit:"ዩኒት",nUsers:"አባላት",nDon:"ለጋሾች",nReq:"ጥያቄዎች",pick:"ይምረጡ",active:"ንቁ የደም ጥያቄዎች",find:"ለጋሽ ፈልግ",newReq:"የደም ጥያቄ ያስገቡ",panel:"የአስተዳዳሪ ክፍል"}
+};
+const BG=["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+const CODES=[["+251","ET"],["+1","US/CA"],["+44","UK"],["+49","DE"],["+966","SA"],["+971","AE"],["+974","QA"],["+965","KW"],["+961","LB"],["+254","KE"],["+253","DJ"],["+249","SD"],["+20","EG"],["+39","IT"],["+46","SE"],["+61","AU"],["+91","IN"],["+972","IL"],["+27","ZA"]];
+const EMAIL=/^[a-zA-Z0-9._%+-]+@[a-zA-Z-]+(\.[a-zA-Z-]+)*\.[a-zA-Z]{2,}$/;
+const PHONE=/^\d{7,12}$/;
+const ADMIN={name:"Admin",email:"getchhalu@gmail.com",pass:"getch1234",role:"admin",code:"",phone:"",blood:"",city:""};
+
+const LS={
+  get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let S={lang:LS.get("gebds_lang","en"),tab:"requests",mode:"login",fg:"",fc:""};
+const t=k=>T[S.lang][k]||T.en[k]||k;
+const users=()=>LS.get("gebds_users",[]);
+const reqs=()=>LS.get("gebds_requests",[]);
+const me=()=>{const e=LS.get("gebds_session",null);return users().find(u=>u.email===e)||null};
+const v=id=>($("#"+id)?$("#"+id).value:"").trim();
+
+function seed(){
+  const u=users();
+  if(!u.some(x=>x.email===ADMIN.email)){u.unshift(ADMIN);LS.set("gebds_users",u)}
+}
+function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("show"),2400)}
+function err(m){const e=$("#err");if(e)e.textContent=m;return false}
+
+/* ---------- views ---------- */
+const langBtn=()=>`<button class="btn ghost sm" data-a="lang" aria-label="Language">${S.lang==="en"?"አማርኛ":"English"}</button>`;
+const bgOpts=()=>`<option value="">${t("pick")}</option>`+BG.map(b=>`<option>${b}</option>`).join("");
+const phoneField=(id,cid)=>`<div class="ph"><select id="${cid}" aria-label="Country code">${CODES.map(c=>`<option value="${c[0]}">${c[1]} ${c[0]}</option>`).join("")}</select><input id="${id}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="12" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>`;
+
+function authView(){
+  const r=S.mode==="register";
+  return `<div class="auth"><div style="display:flex;justify-content:space-between;align-items:center"><div class="drop" aria-hidden="true"><b>+</b></div>${langBtn()}</div>
+  <h1>${t("app")}</h1><p class="sub">${t("sub")}</p>
+  <form id="${r?"register":"login"}" novalidate>
+    ${r?`<label for="name">${t("name")}</label><input id="name" autocomplete="name">`:""}
+    <label for="email">${t("email")}</label><input id="email" type="email" autocomplete="email" autocapitalize="none">
+    <label for="pass">${t("pass")}</label><input id="pass" type="password" autocomplete="${r?"new-password":"current-password"}">
+    ${r?`<label for="phone">${t("phone")}</label>${phoneField("phone","code")}
+    <label for="blood">${t("blood")}</label><select id="blood">${bgOpts()}</select>
+    <label for="city">${t("city")}</label><input id="city" autocomplete="address-level2">`:""}
+    <p class="err" id="err"></p>
+    <button class="btn" type="submit">${r?t("register"):t("login")}</button>
+  </form>
+  <button class="link" data-a="mode">${r?t("toLog"):t("toReg")}</button></div>`;
+}
+
+function shell(u){
+  const tabs=[["requests",t("requests")],["donors",t("donors")],["post",t("post")]];
+  if(u.role==="admin")tabs.push(["admin",t("admin")]);
+  if(!tabs.some(x=>x[0]===S.tab))S.tab="requests";
+  const body={requests:reqView,donors:donorView,post:postView,admin:adminView}[S.tab](u);
+  return `<header><h1>${t("app")}</h1>${langBtn()}<button class="btn ghost sm" data-a="logout">${t("logout")}</button></header>
+  <main>${body}</main>
+  <nav>${tabs.map(x=>`<button data-a="tab" data-v="${x[0]}" class="${S.tab===x[0]?"on":""}">${x[1]}</button>`).join("")}</nav>`;
+}
+
+function reqView(u){
+  const list=reqs().slice().sort((a,b)=>b.ts-a.ts);
+  const loc=S.lang==="am"?"am-ET":"en-GB";
+  const cards=list.map(r=>`<div class="card"><div class="drop"><b>${esc(r.group)}</b></div><div class="info">
+    <strong>${esc(r.patient)}</strong>
+    <span class="meta">${esc(r.hospital)}, ${esc(r.country)}<br>${esc(r.units)} ${t("unit")} · ${new Date(r.ts).toLocaleDateString(loc)}</span>
+    <div class="row"><a href="tel:${esc(r.code+r.phone)}">${t("call")} ${esc(r.code+" "+r.phone)}</a>
+    ${(r.by===u.email||u.role==="admin")?`<button class="btn danger sm" data-a="del" data-v="${esc(r.id)}">${t("del")}</button>`:""}</div></div></div>`).join("");
+  return `<h2>${t("active")}</h2>${cards||`<div class="empty">${t("noReq")}</div>`}`;
+}
+
+function donorView(){
+  return `<h2>${t("find")}</h2><div class="filters">
+  <select id="fg" aria-label="${t("blood")}"><option value="">${t("all")}</option>${BG.map(b=>`<option ${S.fg===b?"selected":""}>${b}</option>`).join("")}</select>
+  <input id="fc" placeholder="${t("fcity")}" value="${esc(S.fc)}"></div><div id="dl"></div>`;
+}
+function drawDonors(){
+  const c=S.fc.trim().toLowerCase();
+  const list=users().filter(u=>u.role!=="admin"&&(!S.fg||u.blood===S.fg)&&(!c||u.city.toLowerCase().includes(c)));
+  $("#dl").innerHTML=list.map(d=>`<div class="card"><div class="drop"><b>${esc(d.blood)}</b></div><div class="info"><strong>${esc(d.name)}</strong>
+  <span class="meta">${esc(d.city)}</span><div class="row"><a href="tel:${esc(d.code+d.phone)}">${t("call")} ${esc(d.code+" "+d.phone)}</a></div></div></div>`).join("")||`<div class="empty">${t("noDon")}</div>`;
+}
+
+function postView(){
+  return `<h2>${t("newReq")}</h2><form id="post" novalidate>
+  <label for="patient">${t("patient")}</label><input id="patient">
+  <label for="rphone">${t("phone")}</label>${phoneField("rphone","rcode")}
+  <label for="rblood">${t("blood")}</label><select id="rblood">${bgOpts()}</select>
+  <label for="hospital">${t("hospital")}</label><input id="hospital">
+  <label for="country">${t("country")}</label><input id="country">
+  <label for="units">${t("units")}</label><input id="units" type="tel" inputmode="numeric" maxlength="2" value="1" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+  <p class="err" id="err"></p><button class="btn" type="submit">${t("send")}</button></form>`;
+}
+
+function adminView(){
+  const u=users();
+  return `<h2>${t("panel")}</h2><div class="stats"><div><b>${u.length}</b>${t("nUsers")}</div><div><b>${u.filter(x=>x.role!=="admin").length}</b>${t("nDon")}</div><div><b>${reqs().length}</b>${t("nReq")}</div></div>
+  <p class="meta" style="margin-bottom:12px">${t("resetTxt")}</p><button class="btn danger" style="width:100%" data-a="reset">${t("reset")}</button>`;
+}
+
+function render(){
+  document.documentElement.lang=S.lang;
+  const u=me();
+  $("#app").innerHTML=u?shell(u):authView();
+  if(u&&S.tab==="donors")drawDonors();
+}
+
+/* ---------- actions ---------- */
+function doLogin(){
+  const e=v("email").toLowerCase(),p=$("#pass").value;
+  if(!e||!p)return err(t("req"));
+  const u=users().find(x=>x.email===e&&x.pass===p);
+  if(!u)return err(t("wrong"));
+  LS.set("gebds_session",u.email);S.tab="requests";render();
+}
+function doRegister(){
+  const d={name:v("name"),email:v("email").toLowerCase(),pass:$("#pass").value,code:v("code"),phone:v("phone"),blood:v("blood"),city:v("city"),role:"user"};
+  if(!d.name||!d.email||!d.pass||!d.phone||!d.blood||!d.city)return err(t("req"));
+  if(!EMAIL.test(d.email))return err(t("badEmail"));
+  if(d.pass.length<6)return err(t("badPass"));
+  if(!PHONE.test(d.phone))return err(t("badPhone"));
+  const all=users();
+  if(all.some(x=>x.email===d.email))return err(t("exists"));
+  all.push(d);LS.set("gebds_users",all);LS.set("gebds_session",d.email);
+  S.tab="requests";render();toast(t("created"));
+}
+function doPost(){
+  const u=me();if(!u)return;
+  const r={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),by:u.email,patient:v("patient"),code:v("rcode"),phone:v("rphone"),group:v("rblood"),hospital:v("hospital"),country:v("country"),units:v("units"),ts:Date.now()};
+  if(!r.patient||!r.phone||!r.group||!r.hospital||!r.country||!r.units)return err(t("req"));
+  if(!PHONE.test(r.phone))return err(t("badPhone"));
+  const n=parseInt(r.units,10);
+  if(!(n>=1&&n<=20))return err(t("badUnits"));
+  r.units=n;
+  const all=reqs();all.push(r);LS.set("gebds_requests",all);
+  S.tab="requests";render();toast(t("posted"));
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;
+  const a=b.dataset.a,val=b.dataset.v;
+  if(a==="lang"){S.lang=S.lang==="en"?"am":"en";LS.set("gebds_lang",S.lang);render()}
+  else if(a==="mode"){S.mode=S.mode==="login"?"register":"login";render()}
+  else if(a==="tab"){S.tab=val;render()}
+  else if(a==="logout"){localStorage.removeItem("gebds_session");S.mode="login";render()}
+  else if(a==="del"){const u=me();LS.set("gebds_requests",reqs().filter(r=>r.id!==val||!(r.by===u.email||u.role==="admin")));render()}
+  else if(a==="reset"){
+    const u=me();if(!u||u.role!=="admin")return;
+    if(confirm(t("resetAsk"))){
+      try{localStorage.clear()}catch(x){}
+      S={lang:S.lang,tab:"requests",mode:"login",fg:"",fc:""};
+      seed();render();toast(t("done"));
+    }
+  }
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();
+  const f={login:doLogin,register:doRegister,post:doPost}[e.target.id];
+  if(f)f();
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.id==="fg"||el.id==="fc"){S.fg=$("#fg").value;S.fc=$("#fc").value;drawDonors()}
+});
+
+seed();render();
+</script>
+</body>
+</html>
